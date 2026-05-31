@@ -88,6 +88,16 @@ export const squatConfig = {
     criticalPenalty: 28,
     warningPenalty: 14,
     infoPenalty: 7,
+    // The rep score is the weighted average of the six hexagon axes (sums to 1),
+    // so the number and the chart always agree. Injury-risk / core axes weigh more.
+    axisWeights: {
+      depth: 0.22,
+      knee: 0.22,
+      posture: 0.2,
+      balance: 0.16,
+      tempo: 0.1,
+      stability: 0.1,
+    },
   },
   feedback: {
     minErrorDurationMs: 300,

@@ -1,7 +1,7 @@
 import { squatConfig } from '../config/squatConfig';
 import type { FormError, PhaseHistoryEntry, RepCounterState, RepResult, SquatMetrics, SquatPhase } from '../../types/squat';
 import { generateRepFeedback } from './feedback';
-import { scoreRep, scoreRepBreakdown } from './scoring';
+import { scoreRep } from './scoring';
 
 export function createInitialRepCounterState(): RepCounterState {
   return {
@@ -164,7 +164,7 @@ export function createRepResult(
     errors: uniqueErrors,
     depthScore: scoring.depthScore,
     stabilityScore: scoring.stabilityScore,
-    breakdown: scoreRepBreakdown(collectedMetrics),
+    breakdown: scoring.breakdown,
     feedback: '',
   };
 

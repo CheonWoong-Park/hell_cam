@@ -22,25 +22,40 @@ export function scoreCurrentFrame(metrics: SquatMetrics, errors: FormError[]): n
   return Math.round(clamp(score, 0, 100));
 }
 
+/**
+ * Overall rep score = weighted average of the six hexagon axes, minus a penalty
+ * for critical errors. Form faults (valgus, lean, …) already pull their own axis
+ * down, so only critical issues (out-of-frame, low confidence) deduct on top.
+ */
+export function scoreFromBreakdown(breakdown: RepScoreBreakdown, errors: FormError[]): number {
+  const weights = squatConfig.scoring.axisWeights;
+  const weighted =
+    breakdown.depth * weights.depth +
+    breakdown.knee * weights.knee +
+    breakdown.posture * weights.posture +
+    breakdown.balance * weights.balance +
+    breakdown.tempo * weights.tempo +
+    breakdown.stability * weights.stability;
+
+  const criticalPenalty = uniqueErrors(errors)
+    .filter((error) => error.severity === 'critical')
+    .reduce((sum) => sum + squatConfig.scoring.criticalPenalty, 0);
+
+  return Math.round(clamp(weighted - criticalPenalty, 0, 100));
+}
+
 export function scoreRep(metricsHistory: SquatMetrics[], errors: FormError[]) {
   if (metricsHistory.length === 0) {
-    return { score: 0, depthScore: 0, stabilityScore: 0 };
+    return { score: 0, depthScore: 0, stabilityScore: 0, breakdown: scoreRepBreakdown([]) };
   }
 
-  const maxDepth = Math.max(...metricsHistory.map((metrics) => metrics.hipDepthRatio));
-  const depthScore = clamp((maxDepth / squatConfig.form.insufficientDepthRatio) * 100, 0, 100);
-  const stabilityScore =
-    metricsHistory.reduce((sum, metrics) => sum + (metrics.kneeTrackingScore + metrics.asymmetryScore) / 2, 0) /
-    metricsHistory.length;
-  const confidenceScore =
-    metricsHistory.reduce((sum, metrics) => sum + clamp(metrics.confidence * 100, 0, 100), 0) / metricsHistory.length;
-  const errorPenalty = uniqueErrors(errors).reduce((sum, error) => sum + penaltyForSeverity(error.severity), 0);
-  const score = depthScore * 0.34 + stabilityScore * 0.36 + confidenceScore * 0.3 - errorPenalty;
+  const breakdown = scoreRepBreakdown(metricsHistory);
 
   return {
-    score: Math.round(clamp(score, 0, 100)),
-    depthScore: Math.round(depthScore),
-    stabilityScore: Math.round(clamp(stabilityScore, 0, 100)),
+    score: scoreFromBreakdown(breakdown, errors),
+    depthScore: breakdown.depth,
+    stabilityScore: breakdown.stability,
+    breakdown,
   };
 }
 

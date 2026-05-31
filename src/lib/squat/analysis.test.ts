@@ -6,7 +6,7 @@ import { generateRealtimeFeedback, prioritizeErrors } from './feedback';
 import { calculateSquatMetrics } from './metrics';
 import { detectSquatPhase } from './phaseDetection';
 import { createInitialRepCounterState, updateRepCounter } from './repCounter';
-import { scoreRep, scoreRepBreakdown } from './scoring';
+import { scoreFromBreakdown, scoreRep, scoreRepBreakdown } from './scoring';
 import type { FormError, SquatMetrics, SquatPhase } from '../../types/squat';
 import type { PoseFrame, PoseKeypoint } from '../../types/pose';
 import { createCalibrationFromPoseFrame } from '../../hooks/useCalibration';
@@ -233,6 +233,17 @@ describe('rep score breakdown', () => {
     const aligned = scoreRepBreakdown([metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.05 })]);
 
     expect(caving.knee).toBeLessThan(aligned.knee);
+  });
+
+  it('derives the rep score from the weighted hexagon axes', () => {
+    const history = [
+      metrics({ hipDepthRatio: 0.3 }),
+      metrics({ hipDepthRatio: 0.85, phase: 'bottom' }),
+      metrics({ hipDepthRatio: 0.2 }),
+    ];
+    const result = scoreRep(history, []);
+
+    expect(result.score).toBe(scoreFromBreakdown(result.breakdown, []));
   });
 });
 
