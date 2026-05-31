@@ -67,7 +67,10 @@ export function calculateSquatMetrics(
   const timestampDeltaSeconds = previousMetrics
     ? Math.max((poseFrame.timestamp - previousMetrics.timestamp) / 1000, 0.001)
     : 0.001;
-  const rawVelocity = previousMetrics?.hipY ? (hipMid.y - previousMetrics.hipY) / timestampDeltaSeconds : 0;
+  const finiteDifferenceVelocity = previousMetrics?.hipY ? (hipMid.y - previousMetrics.hipY) / timestampDeltaSeconds : 0;
+  // Prefer the Kalman-estimated hip velocity (clean, low-lag); fall back to the
+  // finite difference when keypoints carry no velocity (e.g. unit tests).
+  const rawVelocity = hipVerticalVelocityFromKeypoints(leftHip, rightHip) ?? finiteDifferenceVelocity;
 
   const rawMetrics = {
     phase: previousMetrics?.phase ?? 'idle',
@@ -121,6 +124,19 @@ function smoothNullable(previous: number | null, current: number | null, alpha: 
   }
 
   return smoothMetric(previous, current, alpha);
+}
+
+function hipVerticalVelocityFromKeypoints(leftHip: PoseKeypoint, rightHip: PoseKeypoint): number | null {
+  if (leftHip.vy === undefined || rightHip.vy === undefined) {
+    return null;
+  }
+
+  const totalScore = leftHip.score + rightHip.score;
+  if (totalScore <= 0) {
+    return (leftHip.vy + rightHip.vy) / 2;
+  }
+
+  return (leftHip.vy * leftHip.score + rightHip.vy * rightHip.score) / totalScore;
 }
 
 function calculateTorsoLean(shoulderMid: PoseKeypoint, hipMid: PoseKeypoint): number {

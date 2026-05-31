@@ -6,16 +6,16 @@ import {
   initializeTensorFlowBackend,
   type MoveNetDetector,
 } from '../lib/pose/movenet';
-import { smoothKeypoints } from '../lib/pose/smoothing';
+import { KeypointKalmanSmoother } from '../lib/pose/kalman';
 import { squatConfig } from '../lib/config/squatConfig';
-import type { PoseFrame, PoseKeypoint } from '../types/pose';
+import type { PoseFrame } from '../types/pose';
 
 type ModelStatus = 'idle' | 'loading_backend' | 'loading_model' | 'ready' | 'error';
 
 export function useMoveNet() {
   const detectorRef = useRef<MoveNetDetector | null>(null);
   const estimatingRef = useRef(false);
-  const previousKeypointsRef = useRef<PoseKeypoint[] | null>(null);
+  const smootherRef = useRef<KeypointKalmanSmoother | null>(null);
   const [status, setStatus] = useState<ModelStatus>('idle');
   const [backend, setBackend] = useState<string>('unknown');
   const [error, setError] = useState<string | null>(null);
@@ -67,12 +67,9 @@ export function useMoveNet() {
         return null;
       }
 
-      const keypoints = smoothKeypoints(
-        previousKeypointsRef.current,
-        poseFrame.keypoints,
-        squatConfig.smoothing.keypointAlpha,
-      );
-      previousKeypointsRef.current = keypoints;
+      const smoother =
+        smootherRef.current ?? (smootherRef.current = new KeypointKalmanSmoother(squatConfig.smoothing.kalman));
+      const keypoints = smoother.smooth(poseFrame.keypoints, poseFrame.timestamp);
 
       return {
         ...poseFrame,

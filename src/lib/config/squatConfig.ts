@@ -23,6 +23,12 @@ export const squatConfig = {
     keypointAlpha: 0.45,
     metricAlpha: 0.35,
     movingAverageWindow: 5,
+    kalman: {
+      processNoise: 4000,
+      measurementNoise: 9,
+      minConfidence: 0.15,
+      resetGapSeconds: 0.5,
+    },
   },
   calibration: {
     standingHoldMs: 2000,

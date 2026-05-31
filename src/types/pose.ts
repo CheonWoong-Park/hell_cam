@@ -25,6 +25,9 @@ export interface PoseKeypoint {
   x: number;
   y: number;
   score: number;
+  /** Estimated velocity (px/sec) from the Kalman smoother, when available. */
+  vx?: number;
+  vy?: number;
 }
 
 export interface PoseFrame {
