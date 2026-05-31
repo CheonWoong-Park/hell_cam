@@ -110,16 +110,19 @@ function App() {
       )}
 
       <div className="stage-grid">
-        <CameraView
-          videoRef={videoRef}
-          poseFrame={poseFrame}
-          cameraReady={camera.isReady}
-          modelReady={moveNet.isReady}
-          cameraError={camera.error}
-          errors={errors}
-          phase={phase}
-          isRunning={workoutState === 'running'}
-        />
+        <div className="camera-column">
+          <CameraView
+            videoRef={videoRef}
+            poseFrame={poseFrame}
+            cameraReady={camera.isReady}
+            modelReady={moveNet.isReady}
+            cameraError={camera.error}
+            errors={errors}
+            phase={phase}
+            isRunning={workoutState === 'running'}
+          />
+          {showReport && <WorkoutReport summary={summary} repResults={repResults} />}
+        </div>
 
         <aside className="side-column" aria-label="Live stats">
           <RepCounter repCount={repCount} phase={phase} currentScore={currentScore} lastRep={lastRep} />
@@ -141,8 +144,6 @@ function App() {
         onStop={handleStop}
         onReset={handleReset}
       />
-
-      {showReport && <WorkoutReport summary={summary} repResults={repResults} />}
     </main>
   );
 }

@@ -27,13 +27,10 @@ export function CameraView({
   isRunning,
 }: CameraViewProps) {
   const showOutOfFrame = poseFrame && !poseFrame.bodyInFrame;
-  const videoAspect = poseFrame
-    ? `${poseFrame.videoWidth} / ${poseFrame.videoHeight}`
-    : `${squatConfig.camera.width} / ${squatConfig.camera.height}`;
 
   return (
     <section className="camera-shell" aria-label="Camera analysis area">
-      <div className="video-stage" style={{ aspectRatio: videoAspect }}>
+      <div className="video-stage">
         <video
           ref={videoRef}
           className={squatConfig.camera.mirror ? 'camera-video camera-video--mirror' : 'camera-video'}
