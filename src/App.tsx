@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalibrationPanel } from './components/CalibrationPanel';
 import { CameraView } from './components/CameraView';
-import { FeedbackPanel } from './components/FeedbackPanel';
+import { RepCoachPanel } from './components/RepCoachPanel';
 import { RepCounter } from './components/RepCounter';
 import { WorkoutControls } from './components/WorkoutControls';
 import { WorkoutReport } from './components/WorkoutReport';
@@ -24,7 +24,6 @@ function App() {
   const analyzer = useSquatAnalyzer(poseFrame, calibration.calibrationData, workoutState === 'running');
   const {
     phase,
-    feedback,
     errors,
     currentScore,
     repCount,
@@ -126,7 +125,7 @@ function App() {
 
         <aside className="side-column" aria-label="Live stats">
           <RepCounter repCount={repCount} phase={phase} currentScore={currentScore} lastRep={lastRep} />
-          <FeedbackPanel phase={phase} score={currentScore} feedback={feedback} errors={errors} />
+          <RepCoachPanel lastRep={lastRep} repResults={repResults} />
           {showCalibration && (
             <CalibrationPanel calibrationData={calibration.calibrationData} progress={calibration.progress} />
           )}

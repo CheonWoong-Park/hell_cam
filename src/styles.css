@@ -467,6 +467,100 @@ button:disabled {
   letter-spacing: 0.05em;
 }
 
+.rep-hero__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.rep-hero__score {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.rep-hero__row .phase-chip {
+  margin-top: 0;
+}
+
+.coach-panel {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.coach-headline {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.coach-headline--good {
+  color: var(--accent);
+}
+
+.coach-tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.coach-tips__item {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.coach-history {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.coach-history__row {
+  display: grid;
+  grid-template-columns: 44px 44px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+}
+
+.coach-history__rep {
+  color: var(--text-faint);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.coach-history__score {
+  color: var(--text);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.coach-history__tag {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: right;
+}
+
 .score-display {
   display: grid;
   gap: 4px;

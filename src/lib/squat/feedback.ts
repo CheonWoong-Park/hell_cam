@@ -14,6 +14,47 @@ export const formErrorMessages: Record<FormErrorType, string> = {
   INCOMPLETE_LOCKOUT: '끝까지 일어서지 않았어요. 무릎과 엉덩이를 완전히 펴세요.',
 };
 
+export const formErrorShortLabels: Record<FormErrorType, string> = {
+  BODY_OUT_OF_FRAME: '프레임 벗어남',
+  LOW_CONFIDENCE: '인식 불안정',
+  KNEE_VALGUS: '무릎 모임',
+  EXCESSIVE_FORWARD_LEAN: '상체 숙임',
+  HIP_SHOOT: '엉덩이 솟구침',
+  WEIGHT_SHIFT: '좌우 쏠림',
+  INSUFFICIENT_DEPTH: '깊이 부족',
+  NARROW_STANCE: '좁은 발 간격',
+  FAST_DESCENT: '빠른 하강',
+  INCOMPLETE_LOCKOUT: '미완성 락아웃',
+};
+
+export interface RepCoaching {
+  positive: boolean;
+  headline: string;
+  tips: string[];
+}
+
+/**
+ * Per-rep coaching shown after each completed squat. Unlike the live overlay,
+ * this updates only when a rep finishes, so the advice stays calm and readable.
+ */
+export function generateRepCoaching(rep: RepResult): RepCoaching {
+  const cues = prioritizeErrors(rep.errors).slice(0, 2);
+
+  if (cues.length === 0) {
+    return {
+      positive: true,
+      headline: rep.score >= squatConfig.scoring.goodRepThreshold ? '훌륭한 반복이에요!' : '안정적인 반복이에요.',
+      tips: ['지금 깊이와 리듬을 그대로 유지하세요.'],
+    };
+  }
+
+  return {
+    positive: false,
+    headline: '다음 반복에는 이렇게 해보세요',
+    tips: cues.map((cue) => cue.message),
+  };
+}
+
 export function prioritizeErrors(errors: FormError[]): FormError[] {
   return [...errors].sort((a, b) => {
     const aPriority = squatConfig.feedback.priority.indexOf(a.type);

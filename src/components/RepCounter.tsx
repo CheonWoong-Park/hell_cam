@@ -7,12 +7,16 @@ interface RepCounterProps {
   lastRep: RepResult | null;
 }
 
-export function RepCounter({ repCount, lastRep }: RepCounterProps) {
+export function RepCounter({ repCount, phase, currentScore, lastRep }: RepCounterProps) {
   return (
     <section className="panel rep-hero">
       <span className="rep-hero__label">REPS</span>
       <strong className="rep-hero__count">{repCount}</strong>
-      <span className="rep-hero__last">last {lastRep ? lastRep.score : '—'}</span>
+      <div className="rep-hero__row">
+        <span className="rep-hero__last">last {lastRep ? lastRep.score : '—'}</span>
+        <span className="rep-hero__score">SCORE {currentScore}</span>
+        <span className={`phase-chip phase-chip--${phase}`}>{phase}</span>
+      </div>
     </section>
   );
 }
