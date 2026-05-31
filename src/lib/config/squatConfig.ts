@@ -35,10 +35,11 @@ export const squatConfig = {
   },
   phase: {
     standingHipRatio: 0.18,
+    standingExitHipRatio: 0.32,
     descendingHipRatio: 0.26,
     bottomHipRatio: 0.58,
     minStandingKneeAngle: 152,
-    bottomKneeAngle: 112,
+    bottomKneeAngle: 120,
     descentVelocityThreshold: 24,
     ascentVelocityThreshold: -24,
     minPhaseDurationMs: 180,

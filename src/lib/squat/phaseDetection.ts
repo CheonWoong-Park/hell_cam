@@ -13,9 +13,15 @@ export function detectSquatPhase(
   }
 
   const averageKneeAngle = averageNullable(metrics.leftKneeAngle, metrics.rightKneeAngle);
+  // Returning to standing is driven primarily by the knees straightening, which is
+  // robust to calibration error, and only loosely gated by hip depth. Depth ratio
+  // depends on the calibrated baseline, so a strict depth gate here can trap the
+  // lifter in `ascending` forever and never close the rep.
   const looksStanding =
-    metrics.hipDepthRatio <= config.phase.standingHipRatio &&
-    (averageKneeAngle === null || averageKneeAngle >= config.phase.minStandingKneeAngle);
+    averageKneeAngle === null
+      ? metrics.hipDepthRatio <= config.phase.standingHipRatio
+      : averageKneeAngle >= config.phase.minStandingKneeAngle &&
+        metrics.hipDepthRatio <= config.phase.standingExitHipRatio;
   const looksBottom =
     metrics.hipDepthRatio >= config.phase.bottomHipRatio ||
     (averageKneeAngle !== null && averageKneeAngle <= config.phase.bottomKneeAngle);

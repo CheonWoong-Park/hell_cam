@@ -133,13 +133,17 @@ function resolveStablePhase(
 export function shouldCountRep(phaseHistory: PhaseHistoryEntry[]): boolean {
   const compactPhases = compactPhaseHistory(phaseHistory);
   const bottomIndex = compactPhases.lastIndexOf('bottom');
-  const standingIndex = compactPhases.lastIndexOf('standing');
 
-  if (bottomIndex === -1 || standingIndex === -1 || standingIndex <= bottomIndex) {
+  // A rep is valid once the lifter has committed to a stable bottom and then
+  // returned upward to standing. We intentionally do NOT require the transient
+  // `descending`/`ascending` phases to be present in the history: at real frame
+  // rates those phases are often shorter than the phase-stabilization window and
+  // get swallowed, which previously made the counter miss almost every rep.
+  if (bottomIndex === -1) {
     return false;
   }
 
-  return compactPhases.slice(0, bottomIndex + 1).includes('descending') && compactPhases.slice(bottomIndex).includes('ascending');
+  return compactPhases.slice(bottomIndex + 1).includes('standing');
 }
 
 export function createRepResult(
