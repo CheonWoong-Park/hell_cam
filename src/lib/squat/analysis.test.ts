@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { calculateAngle, calculateDistance } from '../pose/geometry';
+import { isBodyInFrame } from '../pose/keypoints';
 import { analyzeSquatForm } from './formAnalysis';
 import { generateRealtimeFeedback, prioritizeErrors } from './feedback';
 import { calculateSquatMetrics } from './metrics';
@@ -115,6 +116,29 @@ describe('form analysis and feedback', () => {
     const errors = analyzeSquatForm(metrics({ confidence: 0.2, hipDepthRatio: 0.4, phase: 'bottom' }), null);
     expect(errors).toHaveLength(1);
     expect(errors[0].type).toBe('LOW_CONFIDENCE');
+  });
+});
+
+describe('body in frame', () => {
+  const fullBody = (ankleY: number): PoseKeypoint[] => [
+    point('left_shoulder', 300, 120, 0.9),
+    point('right_shoulder', 420, 120, 0.9),
+    point('left_hip', 300, 300, 0.9),
+    point('right_hip', 420, 300, 0.9),
+    point('left_knee', 300, 470, 0.9),
+    point('right_knee', 420, 470, 0.9),
+    point('left_ankle', 300, ankleY, 0.9),
+    point('right_ankle', 420, ankleY, 0.9),
+  ];
+
+  it('accepts a full body with the feet right at the bottom edge', () => {
+    expect(isBodyInFrame(fullBody(640), 720, 640)).toBe(true);
+  });
+
+  it('rejects when a required joint runs off the side edge', () => {
+    const keypoints = fullBody(600);
+    keypoints[0] = point('left_shoulder', 4, 120, 0.9);
+    expect(isBodyInFrame(keypoints, 720, 640)).toBe(false);
   });
 });
 

@@ -17,7 +17,8 @@ export const squatConfig = {
     sideMinScore: 0.35,
   },
   frame: {
-    marginRatio: 0.035,
+    marginRatio: 0.02,
+    bottomMarginRatio: 0.0,
   },
   smoothing: {
     keypointAlpha: 0.45,

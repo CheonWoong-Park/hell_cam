@@ -12,8 +12,6 @@ export const requiredSquatKeypoints = [
   'right_ankle',
 ] as const satisfies readonly KeypointName[];
 
-const bodyInFrameKeypoints = ['nose', ...requiredSquatKeypoints] as const satisfies readonly KeypointName[];
-
 export type RequiredSquatKeypoints = Record<(typeof requiredSquatKeypoints)[number], PoseKeypoint>;
 
 export function getKeypoint(pose: PoseFrame | PoseKeypoint[], name: KeypointName): PoseKeypoint | null {
@@ -43,10 +41,14 @@ export function isBodyInFrame(keypoints: PoseKeypoint[], videoWidth: number, vid
     return false;
   }
 
+  // Only the squat-relevant joints matter (no nose/face). The bottom margin is
+  // intentionally tiny: when the whole body fills the frame the ankles sit right
+  // at the bottom edge, so a large bottom margin wrongly flags "out of frame".
   const marginX = videoWidth * squatConfig.frame.marginRatio;
-  const marginY = videoHeight * squatConfig.frame.marginRatio;
+  const topMargin = videoHeight * squatConfig.frame.marginRatio;
+  const bottomMargin = videoHeight * squatConfig.frame.bottomMarginRatio;
 
-  return bodyInFrameKeypoints.every((name) => {
+  return requiredSquatKeypoints.every((name) => {
     const keypoint = getKeypoint(keypoints, name);
     if (!keypoint || keypoint.score < squatConfig.confidence.minKeypointScore) {
       return false;
@@ -55,8 +57,8 @@ export function isBodyInFrame(keypoints: PoseKeypoint[], videoWidth: number, vid
     return (
       keypoint.x >= marginX &&
       keypoint.x <= videoWidth - marginX &&
-      keypoint.y >= marginY &&
-      keypoint.y <= videoHeight - marginY
+      keypoint.y >= topMargin &&
+      keypoint.y <= videoHeight - bottomMargin
     );
   });
 }

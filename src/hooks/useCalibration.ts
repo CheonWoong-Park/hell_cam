@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { squatConfig } from '../lib/config/squatConfig';
 import { calculateAngle, calculateDistance, midpoint, normalizeDistance, weightedMidpoint } from '../lib/pose/geometry';
-import { getRequiredKeypoints } from '../lib/pose/keypoints';
+import { calculateAverageConfidence, getRequiredKeypoints } from '../lib/pose/keypoints';
 import type { PoseFrame, PoseKeypoint } from '../types/pose';
 import type { CalibrationData, CalibrationProgress } from '../types/squat';
 
@@ -51,7 +51,7 @@ export function useCalibration() {
       return;
     }
 
-    if (!poseFrame.bodyInFrame || poseFrame.averageScore < squatConfig.confidence.minAverageScore) {
+    if (!poseFrame.bodyInFrame || requiredKeypointConfidence(poseFrame) < squatConfig.confidence.minAverageScore) {
       commitProgress((current) => ({
         ...current,
         message: '전신과 주요 관절이 안정적으로 보이게 카메라 거리와 조명을 조정해 주세요.',
@@ -112,8 +112,16 @@ export function useCalibration() {
   };
 }
 
+export function requiredKeypointConfidence(poseFrame: PoseFrame): number {
+  const required = getRequiredKeypoints(poseFrame);
+  if (!required) {
+    return 0;
+  }
+  return calculateAverageConfidence(Object.values(required));
+}
+
 export function createCalibrationFromPoseFrame(poseFrame: PoseFrame): CalibrationData | null {
-  if (!poseFrame.bodyInFrame || poseFrame.averageScore < squatConfig.confidence.minAverageScore) {
+  if (!poseFrame.bodyInFrame || requiredKeypointConfidence(poseFrame) < squatConfig.confidence.minAverageScore) {
     return null;
   }
 
