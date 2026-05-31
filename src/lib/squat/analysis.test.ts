@@ -6,7 +6,7 @@ import { generateRealtimeFeedback, prioritizeErrors } from './feedback';
 import { calculateSquatMetrics } from './metrics';
 import { detectSquatPhase } from './phaseDetection';
 import { createInitialRepCounterState, updateRepCounter } from './repCounter';
-import { scoreRep } from './scoring';
+import { scoreRep, scoreRepBreakdown } from './scoring';
 import type { FormError, SquatMetrics, SquatPhase } from '../../types/squat';
 import type { PoseFrame, PoseKeypoint } from '../../types/pose';
 import { createCalibrationFromPoseFrame } from '../../hooks/useCalibration';
@@ -211,6 +211,28 @@ describe('scoring', () => {
 
     expect(result.depthScore).toBe(100);
     expect(result.score).toBeGreaterThan(80);
+  });
+});
+
+describe('rep score breakdown', () => {
+  it('returns six axes within 0-100 with strong depth/balance for a clean rep', () => {
+    const breakdown = scoreRepBreakdown([
+      metrics({ hipDepthRatio: 0.3 }),
+      metrics({ hipDepthRatio: 0.85, phase: 'bottom' }),
+      metrics({ hipDepthRatio: 0.2 }),
+    ]);
+
+    expect(breakdown.depth).toBe(100);
+    expect(breakdown.balance).toBe(94);
+    expect(breakdown.tempo).toBe(100);
+    expect(Object.values(breakdown).every((value) => value >= 0 && value <= 100)).toBe(true);
+  });
+
+  it('drops the knee axis when the knees cave inward', () => {
+    const caving = scoreRepBreakdown([metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 0.7 })]);
+    const aligned = scoreRepBreakdown([metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.05 })]);
+
+    expect(caving.knee).toBeLessThan(aligned.knee);
   });
 });
 

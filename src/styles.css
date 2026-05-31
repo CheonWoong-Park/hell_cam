@@ -493,6 +493,50 @@ button:disabled {
   align-content: start;
 }
 
+.hex-chart {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  margin: 0 auto 4px;
+  display: block;
+  overflow: visible;
+}
+
+.hex-chart__ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.hex-chart__spoke {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.hex-chart__label {
+  fill: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hex-chart__reference {
+  fill: rgba(255, 255, 255, 0.06);
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.hex-chart__value {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.hex-chart__dot {
+  fill: var(--accent);
+}
+
 .coach-headline {
   margin: 0;
   font-size: 16px;

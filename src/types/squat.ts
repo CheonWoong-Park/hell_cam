@@ -50,6 +50,15 @@ export interface FormError {
   timestamp: number;
 }
 
+export interface RepScoreBreakdown {
+  depth: number;
+  knee: number;
+  posture: number;
+  balance: number;
+  tempo: number;
+  stability: number;
+}
+
 export interface RepResult {
   repNumber: number;
   score: number;
@@ -59,6 +68,7 @@ export interface RepResult {
   errors: FormError[];
   depthScore: number;
   stabilityScore: number;
+  breakdown: RepScoreBreakdown;
   feedback: string;
 }
 
