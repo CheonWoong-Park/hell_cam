@@ -3,12 +3,15 @@ import type { FormError, FormErrorType, RepResult, SquatMetrics, WorkoutSummary 
 
 export const formErrorMessages: Record<FormErrorType, string> = {
   BODY_OUT_OF_FRAME: '전신이 화면에 들어오게 카메라를 조금 뒤로 옮겨주세요.',
-  LOW_CONFIDENCE: '관절 인식이 불안정합니다. 조명을 밝게 하거나 자세를 조정해 주세요.',
-  INSUFFICIENT_DEPTH: '이번 반복은 깊이가 조금 부족해 보입니다.',
-  EXCESSIVE_TORSO_LEAN: '상체가 기준 자세보다 많이 앞으로 기울었습니다.',
-  KNEE_COLLAPSE_TREND: '무릎이 안쪽으로 무너지는 경향이 있습니다.',
-  LEFT_RIGHT_ASYMMETRY: '좌우 움직임 차이가 커 보입니다.',
-  UNSTABLE_TEMPO: '움직임 속도가 조금 불안정합니다.',
+  LOW_CONFIDENCE: '관절 인식이 불안정해요. 조명을 밝게 하거나 카메라 각도를 조정해 주세요.',
+  KNEE_VALGUS: '무릎이 안쪽으로 모여요. 무릎을 발끝 방향으로 밀어내며 벌리세요.',
+  EXCESSIVE_FORWARD_LEAN: '상체가 너무 숙여졌어요. 가슴을 들고 허리를 곧게 펴세요.',
+  HIP_SHOOT: '엉덩이가 먼저 솟구쳐요. 가슴과 엉덩이를 함께 들어 올리세요.',
+  WEIGHT_SHIFT: '체중이 한쪽으로 쏠려요. 양발에 균등하게 힘을 주세요.',
+  INSUFFICIENT_DEPTH: '깊이가 부족해요. 허벅지가 바닥과 평행이 되도록 더 앉으세요.',
+  NARROW_STANCE: '발 간격이 좁아요. 발을 어깨너비로 벌려 서세요.',
+  FAST_DESCENT: '너무 빠르게 내려가요. 통제하면서 천천히 내려가세요.',
+  INCOMPLETE_LOCKOUT: '끝까지 일어서지 않았어요. 무릎과 엉덩이를 완전히 펴세요.',
 };
 
 export function prioritizeErrors(errors: FormError[]): FormError[] {

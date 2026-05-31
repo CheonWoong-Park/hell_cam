@@ -41,6 +41,9 @@ export function calculateSquatMetrics(
       shoulderY: previousMetrics?.shoulderY ?? null,
       kneeDistanceRatio: previousMetrics?.kneeDistanceRatio ?? null,
       hipVerticalVelocity: 0,
+      shoulderVerticalVelocity: 0,
+      kneeToAnkleWidthRatio: previousMetrics?.kneeToAnkleWidthRatio ?? null,
+      stanceWidthRatio: previousMetrics?.stanceWidthRatio ?? null,
     };
   }
 
@@ -68,9 +71,20 @@ export function calculateSquatMetrics(
     ? Math.max((poseFrame.timestamp - previousMetrics.timestamp) / 1000, 0.001)
     : 0.001;
   const finiteDifferenceVelocity = previousMetrics?.hipY ? (hipMid.y - previousMetrics.hipY) / timestampDeltaSeconds : 0;
-  // Prefer the Kalman-estimated hip velocity (clean, low-lag); fall back to the
+  // Prefer the Kalman-estimated velocity (clean, low-lag); fall back to the
   // finite difference when keypoints carry no velocity (e.g. unit tests).
-  const rawVelocity = hipVerticalVelocityFromKeypoints(leftHip, rightHip) ?? finiteDifferenceVelocity;
+  const rawVelocity = verticalVelocityFromKeypoints(leftHip, rightHip) ?? finiteDifferenceVelocity;
+  const finiteDifferenceShoulderVelocity = previousMetrics?.shoulderY
+    ? (shoulderMid.y - previousMetrics.shoulderY) / timestampDeltaSeconds
+    : 0;
+  const shoulderVelocity =
+    verticalVelocityFromKeypoints(leftShoulder, rightShoulder) ?? finiteDifferenceShoulderVelocity;
+
+  const shoulderWidth = Math.abs(leftShoulder.x - rightShoulder.x);
+  const ankleWidth = Math.abs(leftAnkle.x - rightAnkle.x);
+  const kneeWidth = Math.abs(leftKnee.x - rightKnee.x);
+  const kneeToAnkleWidthRatio = ankleWidth > 1 ? kneeWidth / ankleWidth : null;
+  const stanceWidthRatio = shoulderWidth > 1 ? ankleWidth / shoulderWidth : null;
 
   const rawMetrics = {
     phase: previousMetrics?.phase ?? 'idle',
@@ -89,6 +103,9 @@ export function calculateSquatMetrics(
     shoulderY: shoulderMid.y,
     kneeDistanceRatio,
     hipVerticalVelocity: rawVelocity,
+    shoulderVerticalVelocity: shoulderVelocity,
+    kneeToAnkleWidthRatio,
+    stanceWidthRatio,
   };
 
   return smoothMetrics(previousMetrics, rawMetrics);
@@ -115,6 +132,9 @@ function smoothMetrics(previous: SquatMetrics | null, current: SquatMetrics): Sq
     shoulderY: smoothNullable(previous.shoulderY, current.shoulderY, alpha),
     kneeDistanceRatio: smoothNullable(previous.kneeDistanceRatio, current.kneeDistanceRatio, alpha),
     hipVerticalVelocity: smoothMetric(previous.hipVerticalVelocity, current.hipVerticalVelocity, alpha),
+    shoulderVerticalVelocity: smoothMetric(previous.shoulderVerticalVelocity, current.shoulderVerticalVelocity, alpha),
+    kneeToAnkleWidthRatio: smoothNullable(previous.kneeToAnkleWidthRatio, current.kneeToAnkleWidthRatio, alpha),
+    stanceWidthRatio: smoothNullable(previous.stanceWidthRatio, current.stanceWidthRatio, alpha),
   };
 }
 
@@ -126,17 +146,17 @@ function smoothNullable(previous: number | null, current: number | null, alpha: 
   return smoothMetric(previous, current, alpha);
 }
 
-function hipVerticalVelocityFromKeypoints(leftHip: PoseKeypoint, rightHip: PoseKeypoint): number | null {
-  if (leftHip.vy === undefined || rightHip.vy === undefined) {
+function verticalVelocityFromKeypoints(left: PoseKeypoint, right: PoseKeypoint): number | null {
+  if (left.vy === undefined || right.vy === undefined) {
     return null;
   }
 
-  const totalScore = leftHip.score + rightHip.score;
+  const totalScore = left.score + right.score;
   if (totalScore <= 0) {
-    return (leftHip.vy + rightHip.vy) / 2;
+    return (left.vy + right.vy) / 2;
   }
 
-  return (leftHip.vy * leftHip.score + rightHip.vy * rightHip.score) / totalScore;
+  return (left.vy * left.score + right.vy * right.score) / totalScore;
 }
 
 function calculateTorsoLean(shoulderMid: PoseKeypoint, hipMid: PoseKeypoint): number {

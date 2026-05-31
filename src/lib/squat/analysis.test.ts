@@ -118,6 +118,51 @@ describe('form analysis and feedback', () => {
   });
 });
 
+describe('detailed form analysis', () => {
+  const typesOf = (errors: FormError[]) => errors.map((item) => item.type);
+
+  it('flags knees caving inward at the bottom', () => {
+    const errors = analyzeSquatForm(metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 0.7 }), null);
+    expect(typesOf(errors)).toContain('KNEE_VALGUS');
+  });
+
+  it('flags insufficient depth when neither knee angle nor hip depth reaches parallel', () => {
+    const errors = analyzeSquatForm(metrics({ phase: 'bottom', hipDepthRatio: 0.4, knee: 130 }), null);
+    expect(typesOf(errors)).toContain('INSUFFICIENT_DEPTH');
+  });
+
+  it('does not flag depth once thighs reach parallel by knee angle', () => {
+    const errors = analyzeSquatForm(metrics({ phase: 'bottom', hipDepthRatio: 0.4, knee: 95 }), null);
+    expect(typesOf(errors)).not.toContain('INSUFFICIENT_DEPTH');
+  });
+
+  it('flags hips shooting up faster than the chest on the ascent', () => {
+    const errors = analyzeSquatForm(
+      metrics({ phase: 'ascending', hipVerticalVelocity: -320, shoulderVerticalVelocity: -90 }),
+      null,
+    );
+    expect(typesOf(errors)).toContain('HIP_SHOOT');
+  });
+
+  it('flags a narrow stance while standing', () => {
+    const errors = analyzeSquatForm(metrics({ phase: 'standing', stanceWidthRatio: 0.6, knee: 172 }), null);
+    expect(typesOf(errors)).toContain('NARROW_STANCE');
+  });
+
+  it('flags an incomplete lockout at the top', () => {
+    const errors = analyzeSquatForm(metrics({ phase: 'standing', knee: 158 }), null);
+    expect(typesOf(errors)).toContain('INCOMPLETE_LOCKOUT');
+  });
+
+  it('stays quiet on a clean bottom position', () => {
+    const errors = analyzeSquatForm(
+      metrics({ phase: 'bottom', hipDepthRatio: 0.95, knee: 95, torsoLean: 12, kneeToAnkleWidthRatio: 1.05 }),
+      { baselineTorsoLean: 10 } as never,
+    );
+    expect(errors).toHaveLength(0);
+  });
+});
+
 describe('metrics quality gate', () => {
   it('uses required squat landmarks for confidence instead of unrelated high-score landmarks', () => {
     const poseFrame = poseFrameFromRequiredKeypoints(true, 0.25);
@@ -178,6 +223,9 @@ function metrics(overrides: MetricOverrides = {}): SquatMetrics {
     shoulderY: 260,
     kneeDistanceRatio: 1,
     hipVerticalVelocity: overrides.hipVerticalVelocity ?? overrides.velocity ?? 0,
+    shoulderVerticalVelocity: overrides.shoulderVerticalVelocity ?? 0,
+    kneeToAnkleWidthRatio: overrides.kneeToAnkleWidthRatio ?? 1,
+    stanceWidthRatio: overrides.stanceWidthRatio ?? 1.2,
     ...overrides,
   };
 }

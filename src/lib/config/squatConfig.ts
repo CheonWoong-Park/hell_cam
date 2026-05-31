@@ -59,11 +59,28 @@ export const squatConfig = {
     maxHistory: 32,
   },
   form: {
+    // Depth — "below parallel" is the literature standard (hip crease below knee).
+    // hipDepthRatio ~1 at the calibrated bottom; knee angle ~95-100° ≈ thighs parallel.
     insufficientDepthRatio: 0.7,
-    torsoLeanDeltaDegrees: 14,
-    kneeCollapseScore: 62,
-    asymmetryScore: 66,
-    unstableVelocityPxPerSec: 980,
+    parallelKneeAngle: 100,
+    // Knee valgus (frontal-plane knee caving) — major ACL risk factor (Hewett, Myer).
+    // Knees should track over/outside the feet; width ratio well below 1 => caving.
+    kneeValgusRatio: 0.84,
+    // Trunk flexion — excessive forward lean shifts load to the lumbar spine
+    // (Schoenfeld 2010). Flagged relative to the standing baseline and an absolute cap.
+    forwardLeanDeltaDegrees: 16,
+    forwardLeanAbsoluteDegrees: 52,
+    // Hip shoot / "good morning" — hips rising faster than the chest on the ascent.
+    hipShootVelocityRatio: 1.7,
+    hipShootMinVelocityPxPerSec: 110,
+    // Stance width — feet should be ~shoulder width or slightly wider.
+    narrowStanceRatio: 0.82,
+    // Lateral weight shift / left-right asymmetry.
+    weightShiftScore: 66,
+    // Descent tempo — uncontrolled drop into the bottom.
+    fastDescentVelocityPxPerSec: 900,
+    // Lockout — full knee/hip extension at the top of each rep.
+    lockoutKneeAngle: 165,
   },
   scoring: {
     goodRepThreshold: 78,
@@ -78,11 +95,14 @@ export const squatConfig = {
     priority: [
       'BODY_OUT_OF_FRAME',
       'LOW_CONFIDENCE',
+      'KNEE_VALGUS',
+      'EXCESSIVE_FORWARD_LEAN',
+      'HIP_SHOOT',
+      'WEIGHT_SHIFT',
       'INSUFFICIENT_DEPTH',
-      'EXCESSIVE_TORSO_LEAN',
-      'KNEE_COLLAPSE_TREND',
-      'LEFT_RIGHT_ASYMMETRY',
-      'UNSTABLE_TEMPO',
+      'NARROW_STANCE',
+      'FAST_DESCENT',
+      'INCOMPLETE_LOCKOUT',
     ] as FormErrorType[],
   },
   drawing: {

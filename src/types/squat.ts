@@ -21,16 +21,24 @@ export interface SquatMetrics {
   shoulderY: number | null;
   kneeDistanceRatio: number | null;
   hipVerticalVelocity: number;
+  shoulderVerticalVelocity: number;
+  // Frontal-plane width ratios. Both numerator and denominator share the same
+  // camera foreshortening, so the ratio is robust to the 30-45° view angle.
+  kneeToAnkleWidthRatio: number | null; // < 1 => knees caving inward (valgus)
+  stanceWidthRatio: number | null; // ankle width / shoulder width
 }
 
 export type FormErrorType =
   | 'LOW_CONFIDENCE'
   | 'BODY_OUT_OF_FRAME'
   | 'INSUFFICIENT_DEPTH'
-  | 'EXCESSIVE_TORSO_LEAN'
-  | 'KNEE_COLLAPSE_TREND'
-  | 'LEFT_RIGHT_ASYMMETRY'
-  | 'UNSTABLE_TEMPO';
+  | 'KNEE_VALGUS'
+  | 'EXCESSIVE_FORWARD_LEAN'
+  | 'HIP_SHOOT'
+  | 'WEIGHT_SHIFT'
+  | 'NARROW_STANCE'
+  | 'FAST_DESCENT'
+  | 'INCOMPLETE_LOCKOUT';
 
 export type FormErrorSeverity = 'info' | 'warning' | 'critical';
 
