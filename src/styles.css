@@ -232,6 +232,144 @@ button:disabled {
   text-align: center;
 }
 
+.coach-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: grid;
+  gap: 10px;
+  width: min(640px, 88%);
+  pointer-events: none;
+}
+
+.coach-cue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(10, 14, 12, 0.78);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 14px 38px -14px rgba(0, 0, 0, 0.75);
+  animation: coachCueIn 180ms ease;
+}
+
+.coach-cue__tag {
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.coach-cue__text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.coach-cue--critical {
+  border-color: rgba(255, 94, 107, 0.55);
+}
+
+.coach-cue--critical .coach-cue__tag {
+  background: rgba(255, 94, 107, 0.16);
+  color: var(--danger);
+}
+
+.coach-cue--warning {
+  border-color: rgba(255, 194, 77, 0.5);
+}
+
+.coach-cue--warning .coach-cue__tag {
+  background: rgba(255, 194, 77, 0.16);
+  color: var(--warn);
+}
+
+.coach-cue--info .coach-cue__tag {
+  background: var(--surface-strong);
+  color: var(--text-muted);
+}
+
+.coach-cue--good {
+  border-color: rgba(184, 255, 43, 0.4);
+}
+
+.coach-cue--good .coach-cue__tag {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+@keyframes coachCueIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cue-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.cue-list__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.cue-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.cue-list__item--critical {
+  color: #ffb4ba;
+}
+
+.cue-list__item--critical .cue-dot {
+  background: var(--danger);
+}
+
+.cue-list__item--warning {
+  color: #ffd98a;
+}
+
+.cue-list__item--warning .cue-dot {
+  background: var(--warn);
+}
+
+.cue--critical {
+  background: rgba(255, 94, 107, 0.12);
+  border-color: rgba(255, 94, 107, 0.4);
+  color: #ffb4ba;
+}
+
+.cue--warning {
+  background: rgba(255, 194, 77, 0.12);
+  border-color: rgba(255, 194, 77, 0.4);
+  color: #ffd98a;
+}
+
 .panel {
   padding: 26px;
 }

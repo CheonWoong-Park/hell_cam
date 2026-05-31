@@ -1,6 +1,8 @@
 import type { RefObject } from 'react';
 import { squatConfig } from '../lib/config/squatConfig';
 import type { PoseFrame } from '../types/pose';
+import type { FormError, SquatPhase } from '../types/squat';
+import { CoachOverlay } from './CoachOverlay';
 import { PoseCanvas } from './PoseCanvas';
 
 interface CameraViewProps {
@@ -9,9 +11,21 @@ interface CameraViewProps {
   cameraReady: boolean;
   modelReady: boolean;
   cameraError: string | null;
+  errors: FormError[];
+  phase: SquatPhase;
+  isRunning: boolean;
 }
 
-export function CameraView({ videoRef, poseFrame, cameraReady, modelReady, cameraError }: CameraViewProps) {
+export function CameraView({
+  videoRef,
+  poseFrame,
+  cameraReady,
+  modelReady,
+  cameraError,
+  errors,
+  phase,
+  isRunning,
+}: CameraViewProps) {
   const showOutOfFrame = poseFrame && !poseFrame.bodyInFrame;
   const videoAspect = poseFrame
     ? `${poseFrame.videoWidth} / ${poseFrame.videoHeight}`
@@ -37,6 +51,12 @@ export function CameraView({ videoRef, poseFrame, cameraReady, modelReady, camer
           )}
           {!cameraError && showOutOfFrame && <strong>프레임 밖으로 벗어났습니다</strong>}
         </div>
+        <CoachOverlay
+          errors={errors}
+          phase={phase}
+          isRunning={isRunning}
+          bodyInFrame={Boolean(poseFrame?.bodyInFrame)}
+        />
       </div>
     </section>
   );

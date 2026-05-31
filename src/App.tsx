@@ -25,6 +25,7 @@ function App() {
   const {
     phase,
     feedback,
+    errors,
     currentScore,
     repCount,
     repResults,
@@ -115,11 +116,14 @@ function App() {
           cameraReady={camera.isReady}
           modelReady={moveNet.isReady}
           cameraError={camera.error}
+          errors={errors}
+          phase={phase}
+          isRunning={workoutState === 'running'}
         />
 
         <aside className="side-column" aria-label="Live stats">
           <RepCounter repCount={repCount} phase={phase} currentScore={currentScore} lastRep={lastRep} />
-          <FeedbackPanel phase={phase} score={currentScore} feedback={feedback} />
+          <FeedbackPanel phase={phase} score={currentScore} feedback={feedback} errors={errors} />
           {showCalibration && (
             <CalibrationPanel calibrationData={calibration.calibrationData} progress={calibration.progress} />
           )}
