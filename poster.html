@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>딸깍Fit — 학회 발표 포스터</title>
+    <style>
+      :root {
+        --ink: #0e1512;
+        --muted: #4b5650;
+        --faint: #79857e;
+        --line: #d8e0da;
+        --accent: #1f7a4d;
+        --accent-soft: #e7f5ec;
+        --accent-bright: #18a05c;
+        --bg: #f4f7f4;
+        --card: #ffffff;
+        --warn: #c8842a;
+        --danger: #c8453a;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* A1 portrait poster canvas (594 x 841 mm ≈ 1:1.414) */
+      .poster {
+        width: 1190px;
+        margin: 24px auto;
+        background: var(--bg);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        box-shadow: 0 20px 80px -30px rgba(0, 0, 0, 0.35);
+      }
+
+      /* ---------- Header ---------- */
+      .masthead {
+        background: linear-gradient(135deg, #0f2c1e 0%, #14543a 60%, #18a05c 130%);
+        color: #eafff2;
+        border-radius: 22px;
+        padding: 34px 40px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .masthead .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #9ff0c2;
+      }
+
+      .masthead .mark {
+        width: 16px; height: 16px; border-radius: 5px;
+        background: #b8ff2b; box-shadow: 0 0 22px rgba(184, 255, 43, 0.7);
+      }
+
+      .masthead h1 {
+        margin: 0;
+        font-size: 50px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      .masthead .subtitle {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 500;
+        color: #cdeedb;
+      }
+
+      .masthead .authors {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 26px;
+        margin-top: 6px;
+        font-size: 16px;
+        color: #d7f3e3;
+      }
+      .masthead .authors b { color: #ffffff; font-weight: 700; }
+
+      /* ---------- Body grid ---------- */
+      .row3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 22px;
+        align-items: start;
+      }
+
+      .row21 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 22px;
+        align-items: start;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 22px 24px;
+        break-inside: avoid;
+      }
+
+      h2.section {
+        margin: 0 0 14px;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      h2.section::before {
+        content: "";
+        width: 26px; height: 4px; border-radius: 4px;
+        background: var(--accent-bright);
+      }
+
+      p { margin: 0 0 12px; font-size: 15.5px; color: #1c2622; }
+      p:last-child { margin-bottom: 0; }
+      .muted { color: var(--muted); }
+      strong { color: var(--ink); }
+
+      ul.clean { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+      ul.clean li { position: relative; padding-left: 20px; font-size: 15px; }
+      ul.clean li::before {
+        content: ""; position: absolute; left: 0; top: 8px;
+        width: 8px; height: 8px; border-radius: 50%; background: var(--accent-bright);
+      }
+
+      .tag {
+        display: inline-block; padding: 3px 11px; border-radius: 999px;
+        background: var(--accent-soft); color: var(--accent);
+        font-size: 12.5px; font-weight: 700; margin: 0 6px 6px 0;
+      }
+
+      /* pipeline */
+      .pipe {
+        display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px;
+      }
+      .pipe .step {
+        flex: 1 1 0; min-width: 120px;
+        background: var(--accent-soft);
+        border: 1px solid #cce6d6;
+        border-radius: 12px;
+        padding: 12px 12px;
+        text-align: center;
+      }
+      .pipe .step .t { font-size: 14.5px; font-weight: 800; color: var(--accent); }
+      .pipe .step .d { font-size: 12px; color: var(--muted); margin-top: 3px; }
+      .pipe .arrow { align-self: center; color: var(--accent-bright); font-weight: 800; font-size: 20px; }
+      .pipe .branch {
+        flex-basis: 100%; display: flex; gap: 8px; justify-content: center; margin-top: 2px;
+      }
+
+      /* table */
+      table { width: 100%; border-collapse: collapse; font-size: 13.8px; }
+      th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      th { color: var(--faint); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+      td .sev { font-weight: 800; }
+      td .sev.c { color: var(--danger); }
+      td .sev.w { color: var(--warn); }
+      td .sev.i { color: var(--accent); }
+
+      /* hexagon block */
+      .hex-wrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+      .hex-wrap svg { flex: 0 0 150px; width: 150px; height: 150px; }
+      .ring { fill: none; stroke: #e3ebe5; stroke-width: 1.5; }
+      .spoke { stroke: #e3ebe5; stroke-width: 1.5; }
+      .axislabel { fill: var(--muted); font-size: 13px; font-weight: 700; }
+      .valuepoly { fill: rgba(24, 160, 92, 0.18); stroke: var(--accent-bright); stroke-width: 3; stroke-linejoin: round; }
+      .vdot { fill: var(--accent-bright); }
+      .formula {
+        font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 13.5px; background: #0f2c1e; color: #d7f3e3;
+        border-radius: 12px; padding: 14px 16px; line-height: 1.6; overflow-wrap: anywhere;
+      }
+      .formula .k { color: #b8ff2b; }
+
+      .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .metric {
+        background: var(--accent-soft); border: 1px solid #cce6d6; border-radius: 12px;
+        padding: 12px 14px;
+      }
+      .metric .v { font-size: 26px; font-weight: 800; color: var(--accent); line-height: 1; }
+      .metric .l { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+      .refs { font-size: 12.5px; color: var(--muted); columns: 2; column-gap: 28px; }
+      .refs li { margin-bottom: 7px; break-inside: avoid; }
+
+      .footer {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 13px; color: var(--faint); padding: 4px 6px;
+      }
+      .footer b { color: var(--accent); }
+
+      @media print {
+        @page { size: A1 portrait; margin: 0; }
+        body { background: #fff; }
+        .poster { width: 100%; margin: 0; padding: 28px; box-shadow: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="poster">
+      <!-- ===================== HEADER ===================== -->
+      <header class="masthead">
+        <span class="kicker"><span class="mark"></span>Human Pose · Sports Biomechanics · Web ML</span>
+        <h1>딸깍Fit: 웹캠 단일 카메라 기반 실시간 스쿼트 자세 분석·코칭 시스템</h1>
+        <p class="subtitle">
+          AngleFit Coach — A Browser-only Real-time Squat Form Analysis &amp; Coaching System using Monocular Pose Estimation
+        </p>
+        <div class="authors">
+          <span><b>저자</b> 박천웅 외</span>
+          <span><b>소속</b> ○○대학교 ○○학과</span>
+          <span><b>연락</b> manwoong04@gmail.com</span>
+          <span><b>코드</b> github.com/CheonWoong-Park/hell_cam</span>
+        </div>
+      </header>
+
+      <!-- ===================== ROW 1 ===================== -->
+      <section class="row3">
+        <!-- Abstract -->
+        <article class="card">
+          <h2 class="section">초록 (Abstract)</h2>
+          <p>
+            본 연구는 <strong>추가 장비 없이 웹캠 1대</strong>만으로 스쿼트 자세를 실시간 분석하고
+            교정 피드백을 제공하는 <strong>브라우저 전용</strong> 시스템을 제안한다.
+            MoveNet 기반 2D 포즈 추정에 <strong>등속도 칼만 필터</strong>를 적용해 관절 좌표와
+            속도를 안정적으로 추정하고, 유한 상태기계로 스쿼트 동작 구간(phase)과 반복 횟수를
+            검출한다.
+          </p>
+          <p>
+            스포츠 바이오메카닉스 문헌에 근거해 단일 전측면 카메라에서 측정 가능한 2D 지표로
+            <strong>8가지 자세 결함</strong>을 동작 구간별로 감지하고, 반복마다 점수를
+            <strong>6축 육각형(레이더)</strong>으로 분해·시각화한다. 모든 연산은 클라이언트에서
+            수행되어 <strong>영상이 외부로 전송·저장되지 않는다.</strong>
+          </p>
+        </article>
+
+        <!-- Motivation -->
+        <article class="card">
+          <h2 class="section">연구 배경·목적</h2>
+          <ul class="clean">
+            <li>잘못된 스쿼트 자세(무릎 외반, 과도한 상체 숙임 등)는 <strong>ACL·요추 부상</strong> 위험을 높인다.</li>
+            <li>전문가 피드백은 접근성·비용 제약이 크고, 기존 모션캡처는 <strong>고가·다중 카메라</strong>가 필요하다.</li>
+            <li>목표: <strong>웹캠 1대 + 브라우저</strong>만으로 동작하는 저비용·프라이버시 보존형 실시간 코칭.</li>
+            <li>핵심 과제: 2D·단일 시점의 <strong>노이즈/모호성</strong> 속에서 신뢰할 수 있는 구간·반복·결함 검출.</li>
+          </ul>
+        </article>
+
+        <!-- Contributions -->
+        <article class="card">
+          <h2 class="section">주요 기여</h2>
+          <ul class="clean">
+            <li>칼만 필터로 <strong>위치·속도 동시 추정</strong> → 구간 검출 안정화(신뢰도 가중 측정노이즈).</li>
+            <li>문헌 근거 <strong>8종 자세 결함</strong>의 2D 지표화 및 구간별 판정 규칙.</li>
+            <li>반복 품질의 <strong>6축 분해 + 가중 평균 점수</strong>(점수와 육각형의 일관성 보장).</li>
+            <li>영상 화면 위 실시간 큐 + 반복별 코칭의 <strong>이원화 피드백 UX</strong>.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- ===================== ROW 2: PIPELINE ===================== -->
+      <section class="card">
+        <h2 class="section">시스템 구조 (Methods · Pipeline)</h2>
+        <div class="pipe">
+          <div class="step"><div class="t">웹캠</div><div class="d">getUserMedia<br />1280×720</div></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="t">MoveNet</div><div class="d">TF.js · WebGL<br />SinglePose 17 keypoints</div></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="t">칼만 필터</div><div class="d">등속도 모델<br />좌표+속도 추정</div></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="t">지표 계산</div><div class="d">관절각·깊이비율<br />전면 폭 비율</div></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="t">Phase FSM</div><div class="d">idle→standing→<br />descending→bottom→ascending</div></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="t">점수·피드백</div><div class="d">6축 육각형<br />실시간 코칭 UI</div></div>
+          <div class="branch">
+            <div class="step" style="max-width:230px"><div class="t">반복 카운터</div><div class="d">전이·지속시간 게이팅으로 1회 검출</div></div>
+            <div class="step" style="max-width:230px"><div class="t">자세 분석</div><div class="d">8종 결함 · 지속시간 안정화</div></div>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:14px">
+          React 19 · TypeScript · Vite · TensorFlow.js(WebGL). 검출(detector)은 1회 생성·재사용하며
+          <code>requestAnimationFrame</code> 루프에서 프레임당 1회 추론. 모든 분석 로직은 순수 함수로 분리되어 단위 테스트로 검증.
+        </p>
+      </section>
+
+      <!-- ===================== ROW 3: METHODS DETAIL ===================== -->
+      <section class="row3">
+        <!-- Kalman -->
+        <article class="card">
+          <h2 class="section">관절 평활화 — 칼만 필터</h2>
+          <p>
+            관절 좌표 축마다 <strong>1D 등속도 칼만 필터</strong>(상태 = [위치, 속도])를 적용한다.
+            예측–보정 과정에서 위치와 속도를 함께 추정하므로, 구간 검출에 쓰이는
+            <strong>수직 속도</strong>를 별도 미분 없이 저지연·저잡음으로 얻는다.
+          </p>
+          <ul class="clean">
+            <li>측정 노이즈 R을 <strong>keypoint 신뢰도로 스케일</strong>(R = R₀ / score²) → 흐릿한 관절은 덜 신뢰.</li>
+            <li>큰 시간 간격(카메라 재시작) 시 자동 재시드.</li>
+            <li>기존 EMA 대비 떨림↓ · 속도 추정 품질↑.</li>
+          </ul>
+        </article>
+
+        <!-- Phase & rep -->
+        <article class="card">
+          <h2 class="section">구간·반복 검출</h2>
+          <p>
+            엉덩이 깊이 비율·무릎 각도·수직 속도로 5개 phase를 판정하고,
+            <strong>히스테리시스 + 합법적 전이</strong>만 허용해 떨림을 억제한다.
+          </p>
+          <ul class="clean">
+            <li>후보 지속시간(≥140 ms)·최소 반복시간·중복 쿨다운 게이팅.</li>
+            <li><strong>bottom을 거쳐 standing 복귀</strong> 시 1회로 집계.</li>
+            <li>무릎 각도 기반 판정으로 <strong>캘리브레이션 없이도</strong> 동작.</li>
+          </ul>
+        </article>
+
+        <!-- Hexagon score -->
+        <article class="card">
+          <h2 class="section">반복 점수 — 6축 육각형</h2>
+          <div class="hex-wrap">
+            <svg viewBox="0 0 200 200" role="img" aria-label="6축 육각형 예시">
+              <!-- rings -->
+              <polygon class="ring" points="100,40 152,70 152,130 100,160 48,130 48,70" />
+              <polygon class="ring" points="100,70 126,85 126,115 100,130 74,115 74,85" />
+              <!-- spokes -->
+              <line class="spoke" x1="100" y1="100" x2="100" y2="28" />
+              <line class="spoke" x1="100" y1="100" x2="162" y2="64" />
+              <line class="spoke" x1="100" y1="100" x2="162" y2="136" />
+              <line class="spoke" x1="100" y1="100" x2="100" y2="172" />
+              <line class="spoke" x1="100" y1="100" x2="38" y2="136" />
+              <line class="spoke" x1="100" y1="100" x2="38" y2="64" />
+              <!-- value polygon (example) -->
+              <polygon class="valuepoly"
+                points="100,46 150,72 138,124 100,150 52,128 56,70" />
+              <circle class="vdot" cx="100" cy="46" r="3.4" />
+              <circle class="vdot" cx="150" cy="72" r="3.4" />
+              <circle class="vdot" cx="138" cy="124" r="3.4" />
+              <circle class="vdot" cx="100" cy="150" r="3.4" />
+              <circle class="vdot" cx="52" cy="128" r="3.4" />
+              <circle class="vdot" cx="56" cy="70" r="3.4" />
+              <!-- labels -->
+              <text class="axislabel" x="100" y="20" text-anchor="middle">깊이</text>
+              <text class="axislabel" x="178" y="62" text-anchor="middle">무릎</text>
+              <text class="axislabel" x="178" y="144" text-anchor="middle">상체</text>
+              <text class="axislabel" x="100" y="190" text-anchor="middle">균형</text>
+              <text class="axislabel" x="22" y="144" text-anchor="middle">템포</text>
+              <text class="axislabel" x="22" y="62" text-anchor="middle">안정성</text>
+            </svg>
+            <div style="flex:1">
+              <div class="formula">
+                score = <span class="k">depth</span>·0.22 + <span class="k">knee</span>·0.22
+                + <span class="k">posture</span>·0.20 + <span class="k">balance</span>·0.16
+                + <span class="k">tempo</span>·0.10 + <span class="k">stability</span>·0.10
+                <br />− (치명적 오류 페널티)
+              </div>
+              <p class="muted" style="margin-top:10px;font-size:13.5px">
+                부상 위험·핵심 축(무릎·깊이·상체)에 가중치를 높게 부여. 자세 결함은 해당 축을
+                직접 낮추므로 이중 감점을 피하고, 치명적 오류만 추가 감점한다.
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ===================== ROW 4: FAULTS TABLE + RESULTS ===================== -->
+      <section class="row21">
+      <article class="card">
+        <h2 class="section">자세 결함 분석 (8종 · 문헌 근거)</h2>
+        <table>
+          <thead>
+            <tr><th>결함</th><th>2D 측정 지표</th><th>구간</th><th>심각도</th><th>교정 큐</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>무릎 외반(valgus)</td><td>무릎폭/발목폭 비율 &lt; 0.84</td><td>하강·바닥·상승</td><td><span class="sev w">주의</span></td><td>무릎을 발끝 방향으로 벌리기</td></tr>
+            <tr><td>상체 과도 숙임</td><td>상체 기울기 Δ&gt;16° 또는 절대 &gt;52°</td><td>하강·바닥·상승</td><td><span class="sev w">주의</span></td><td>가슴 들고 허리 곧게</td></tr>
+            <tr><td>엉덩이 솟구침</td><td>상승 시 엉덩이 속도 &gt; 가슴 속도×1.7</td><td>상승</td><td><span class="sev w">주의</span></td><td>가슴·엉덩이 동시에 들기</td></tr>
+            <tr><td>좌우 체중 쏠림</td><td>좌우 비대칭 점수 &lt; 임계</td><td>하강·바닥·상승</td><td><span class="sev w">주의</span></td><td>양발 균등 하중</td></tr>
+            <tr><td>깊이 부족</td><td>무릎각 &gt;100° 및 깊이비율 &lt;0.7</td><td>바닥·상승</td><td><span class="sev w">주의</span></td><td>허벅지 평행까지 앉기</td></tr>
+            <tr><td>좁은 스탠스</td><td>발목폭/어깨폭 &lt; 0.82</td><td>서기·하강</td><td><span class="sev i">팁</span></td><td>발을 어깨너비로</td></tr>
+            <tr><td>빠른 하강</td><td>하강 수직속도 &gt; 900 px/s</td><td>하강</td><td><span class="sev i">팁</span></td><td>통제하며 천천히</td></tr>
+            <tr><td>불완전 락아웃</td><td>정점 무릎각 &lt; 165°</td><td>서기</td><td><span class="sev i">팁</span></td><td>끝까지 완전히 펴기</td></tr>
+          </tbody>
+        </table>
+        <p class="muted" style="margin-top:10px;font-size:13px">
+          전면 폭 비율은 분자·분모가 동일한 카메라 원근 왜곡을 공유하므로 30–45° 전측면 시점에 강건하다.
+          각 결함은 0.3 s 지속 시에만 채택해 일시적 오검출을 억제한다.
+        </p>
+      </article>
+
+      <!-- ===================== ROW 4 right: results ===================== -->
+      <article class="card">
+        <h2 class="section">구현·검증 현황</h2>
+        <div class="metric-grid">
+          <div class="metric"><div class="v">17</div><div class="l">관절 keypoint</div></div>
+          <div class="metric"><div class="v">8</div><div class="l">자세 결함 유형</div></div>
+          <div class="metric"><div class="v">6</div><div class="l">점수 평가 축</div></div>
+          <div class="metric"><div class="v">5</div><div class="l">동작 phase</div></div>
+          <div class="metric"><div class="v">26</div><div class="l">단위 테스트(통과)</div></div>
+          <div class="metric"><div class="v">0</div><div class="l">영상 외부 전송</div></div>
+        </div>
+        <p class="muted" style="margin-top:12px;font-size:13.5px">
+          분석 파이프라인은 React UI와 분리된 순수 함수로 구현되어 결정론적으로 검증된다.
+          실제 사용자 대상 정량 평가(정확도·재현율, 전문가 라벨 대비 일치도)는
+          <strong>향후 과제</strong>로 남긴다.
+        </p>
+      </article>
+      </section>
+
+      <!-- ===================== ROW 5: limitations + future ===================== -->
+      <section class="row21">
+        <article class="card">
+          <h2 class="section">한계 (Limitations)</h2>
+          <ul class="clean">
+            <li>단일 2D 카메라 기반 → 정밀 3D 관절 각도·요추 굴곡(butt wink)·발 하중은 직접 측정 불가.</li>
+            <li>조명·의복·카메라 거리·가림(occlusion)에 따라 keypoint 신뢰도가 변동.</li>
+            <li>임계값은 문헌 근거의 <strong>2D 근사</strong>이며 개인 체형차 보정은 제한적.</li>
+            <li>현재 스쿼트 단일 종목, <strong>의료적 진단 목적 아님</strong>.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2 class="section">향후 연구</h2>
+          <ul class="clean">
+            <li>전문가 라벨 대비 <strong>정량 평가</strong>(결함 검출 정밀도·반복 카운트 정확도).</li>
+            <li>MoveNet Thunder/멀티뷰·깊이 센서 융합으로 3D 확장.</li>
+            <li>체형·장비 맞춤 캘리브레이션, 종목 확장(런지·데드리프트).</li>
+            <li>WebGPU 가속, 반복별 phase 타임라인 시각화.</li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- ===================== REFERENCES ===================== -->
+      <section class="card">
+        <h2 class="section">참고문헌 (References)</h2>
+        <ol class="refs">
+          <li>Schoenfeld, B. J. (2010). Squatting kinematics and kinetics and their application to exercise performance. <em>J. Strength Cond. Res., 24</em>(12), 3497–3506.</li>
+          <li>Hewett, T. E., Myer, G. D., et al. (2005). Biomechanical measures of neuromuscular control and valgus loading of the knee predict ACL injury risk. <em>Am. J. Sports Med., 33</em>(4), 492–501.</li>
+          <li>Escamilla, R. F. (2001). Knee biomechanics of the dynamic squat exercise. <em>Med. Sci. Sports Exerc., 33</em>(1), 127–141.</li>
+          <li>Willson, J. D., &amp; Davis, I. S. (2008). Utility of the frontal plane projection angle in females with patellofemoral pain. <em>J. Orthop. Sports Phys. Ther., 38</em>(10), 606–615.</li>
+          <li>Kalman, R. E. (1960). A new approach to linear filtering and prediction problems. <em>J. Basic Eng., 82</em>(1), 35–45.</li>
+          <li>Google Research (2021). <em>MoveNet: Next-Generation Pose Detection with TensorFlow.js.</em> TensorFlow Blog.</li>
+          <li>Haff, G. G., &amp; Triplett, N. T. (Eds.). (2016). <em>NSCA's Essentials of Strength Training and Conditioning</em> (4th ed.). Human Kinetics.</li>
+        </ol>
+      </section>
+
+      <footer class="footer">
+        <span><b>딸깍Fit / AngleFit Coach</b> · 웹캠 기반 실시간 스쿼트 코칭</span>
+        <span>브라우저 전용 · 영상 비전송 · 2026</span>
+      </footer>
+    </main>
+  </body>
+</html>
