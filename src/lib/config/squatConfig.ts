@@ -119,6 +119,40 @@ export const squatConfig = {
     criticalPenalty: 28,
     warningPenalty: 14,
     infoPenalty: 7,
+    // Robust rep scoring uses sustained percentiles instead of single-frame
+    // extremes. This keeps one bad MoveNet frame from dominating a rep.
+    robustLowPercentile: 0.2,
+    robustHighPercentile: 0.8,
+    depthPartialHipRatio: 0.45,
+    depthTargetHipRatio: 0.78,
+    depthPartialKneeAngle: 130,
+    depthTargetKneeAngle: 100,
+    kneeIdealRatio: 1.03,
+    kneeAcceptableRatio: 0.95,
+    kneeSevereValgusRatio: 0.68,
+    postureIdealLeanRangeDegrees: 10,
+    postureMaxLeanRangeDegrees: 28,
+    postureAbsoluteFailDegrees: 70,
+    tempoMinControlledRepMs: 1200,
+    tempoIdealRepMs: 1800,
+    tempoTooSlowRepMs: 8000,
+    tempoMinDescentMs: 420,
+    tempoMinAscentMs: 360,
+    stabilityTargetConfidence: 0.88,
+    kneeWobbleTolerance: 0.08,
+    kneeWobbleFail: 0.28,
+    asymmetryWobbleTolerance: 10,
+    asymmetryWobbleFail: 45,
+    // DTW technique-consistency analysis across the set.
+    consistency: {
+      trajectorySamples: 32,
+      // Average aligned hip-depth gap: below tolerance = identical technique,
+      // above fail = a different movement altogether.
+      toleranceGap: 0.04,
+      failGap: 0.22,
+      minRepsForFatigue: 6,
+      fatigueSimilarityDrop: 12,
+    },
     // The rep score is the weighted average of the six hexagon axes (sums to 1),
     // so the number and the chart always agree. Injury-risk / core axes weigh more.
     axisWeights: {

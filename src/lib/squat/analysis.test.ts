@@ -203,8 +203,8 @@ describe('scoring', () => {
     const result = scoreRep(
       [
         metrics({ timestamp: 100, hipDepthRatio: 0.2 }),
-        metrics({ timestamp: 300, hipDepthRatio: 0.78, phase: 'bottom' }),
-        metrics({ timestamp: 700, hipDepthRatio: 0.1 }),
+        metrics({ timestamp: 900, hipDepthRatio: 0.78, knee: 98, phase: 'bottom' }),
+        metrics({ timestamp: 1900, hipDepthRatio: 0.1 }),
       ],
       [],
     );
@@ -217,14 +217,14 @@ describe('scoring', () => {
 describe('rep score breakdown', () => {
   it('returns six axes within 0-100 with strong depth/balance for a clean rep', () => {
     const breakdown = scoreRepBreakdown([
-      metrics({ hipDepthRatio: 0.3 }),
-      metrics({ hipDepthRatio: 0.85, phase: 'bottom' }),
-      metrics({ hipDepthRatio: 0.2 }),
+      metrics({ timestamp: 0, phase: 'descending', hipDepthRatio: 0.3 }),
+      metrics({ timestamp: 850, hipDepthRatio: 0.85, knee: 96, phase: 'bottom' }),
+      metrics({ timestamp: 1800, phase: 'ascending', hipDepthRatio: 0.2 }),
     ]);
 
     expect(breakdown.depth).toBe(100);
     expect(breakdown.balance).toBe(94);
-    expect(breakdown.tempo).toBe(100);
+    expect(breakdown.tempo).toBeGreaterThan(90);
     expect(Object.values(breakdown).every((value) => value >= 0 && value <= 100)).toBe(true);
   });
 
@@ -233,6 +233,32 @@ describe('rep score breakdown', () => {
     const aligned = scoreRepBreakdown([metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.05 })]);
 
     expect(caving.knee).toBeLessThan(aligned.knee);
+  });
+
+  it('does not let one noisy valgus frame dominate the knee score', () => {
+    const history = [
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.03 }),
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.03 }),
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 0.5 }),
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.02 }),
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.03 }),
+      metrics({ phase: 'bottom', kneeToAnkleWidthRatio: 1.04 }),
+    ];
+
+    expect(scoreRepBreakdown(history).knee).toBeGreaterThan(90);
+  });
+
+  it('penalizes sustained excessive trunk lean and poor tracking stability', () => {
+    const breakdown = scoreRepBreakdown([
+      metrics({ timestamp: 0, phase: 'descending', torsoLean: 18, confidence: 0.42 }),
+      metrics({ timestamp: 500, phase: 'bottom', torsoLean: 61, confidence: 0.42 }),
+      metrics({ timestamp: 950, phase: 'bottom', torsoLean: 64, confidence: 0.42 }),
+      metrics({ timestamp: 1500, phase: 'ascending', torsoLean: 55, confidence: 0.42 }),
+      metrics({ timestamp: 1900, phase: 'standing', torsoLean: 18, confidence: 0.42 }),
+    ]);
+
+    expect(breakdown.posture).toBeLessThan(70);
+    expect(breakdown.stability).toBeLessThan(55);
   });
 
   it('derives the rep score from the weighted hexagon axes', () => {

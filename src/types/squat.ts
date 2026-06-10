@@ -70,6 +70,8 @@ export interface RepResult {
   stabilityScore: number;
   breakdown: RepScoreBreakdown;
   feedback: string;
+  /** Hip-depth trajectory resampled to a fixed length, for DTW comparison. */
+  trajectory: number[];
 }
 
 export interface CalibrationData {
@@ -90,6 +92,12 @@ export interface WorkoutSummary {
   mostFrequentErrors: Array<{ type: FormErrorType; count: number; message: string }>;
   repScores: Array<{ repNumber: number; score: number }>;
   comment: string;
+  /** DTW similarity (0-100) of each rep against the best rep of the set. */
+  repConsistency: Array<{ repNumber: number; similarity: number }>;
+  /** Average of repConsistency; null until there are at least 2 reps. */
+  consistencyScore: number | null;
+  /** True when technique similarity degrades over the course of the set. */
+  fatigueDetected: boolean;
 }
 
 export interface PhaseHistoryEntry {

@@ -94,10 +94,14 @@ export function generateWorkoutFeedback(summary: WorkoutSummary): string {
     return '아직 완료된 반복이 없습니다. bottom을 거쳐 다시 선 자세로 돌아오면 1회로 기록됩니다.';
   }
 
+  const fatigueNote = summary.fatigueDetected
+    ? ' 세트 후반으로 갈수록 베스트 반복과의 동작 유사도가 떨어졌어요. 피로가 쌓인 신호이니 휴식을 늘리거나 세트를 짧게 가져가 보세요.'
+    : '';
+
   if (summary.mostFrequentErrors.length === 0) {
-    return '전반적으로 안정적인 반복이었습니다. 같은 깊이와 속도를 유지해 보세요.';
+    return `전반적으로 안정적인 반복이었습니다. 같은 깊이와 속도를 유지해 보세요.${fatigueNote}`;
   }
 
   const topError = summary.mostFrequentErrors[0];
-  return `${topError.message} 다음 세트에서는 이 경향을 우선 확인해 보세요.`;
+  return `${topError.message} 다음 세트에서는 이 경향을 우선 확인해 보세요.${fatigueNote}`;
 }
