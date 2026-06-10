@@ -119,6 +119,9 @@ function App() {
             errors={errors}
             phase={phase}
             isRunning={workoutState === 'running'}
+            engineBackend={moveNet.backend}
+            engineModel={moveNet.modelType}
+            engineFps={moveNet.fps}
           />
           {showReport && <WorkoutReport summary={summary} repResults={repResults} />}
         </div>

@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
+import '@tensorflow/tfjs-backend-webgpu';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import { movenet } from '@tensorflow-models/pose-detection';
 import { squatConfig } from '../config/squatConfig';
@@ -7,22 +8,34 @@ import { calculateAverageConfidence, isBodyInFrame } from './keypoints';
 import { moveNetKeypointNames, type KeypointName, type PoseFrame, type PoseKeypoint } from '../../types/pose';
 
 export type MoveNetDetector = poseDetection.PoseDetector;
+export type MoveNetModelType = 'SINGLEPOSE_LIGHTNING' | 'SINGLEPOSE_THUNDER';
 
 export async function initializeTensorFlowBackend(): Promise<string> {
-  const backendReady = await tf.setBackend(squatConfig.model.backend);
-  if (!backendReady) {
-    throw new Error('TensorFlow.js WebGL backend 초기화에 실패했습니다.');
+  for (const backend of squatConfig.model.backendPriority) {
+    if (backend === 'webgpu' && (typeof navigator === 'undefined' || !('gpu' in navigator))) {
+      continue;
+    }
+
+    try {
+      if (await tf.setBackend(backend)) {
+        await tf.ready();
+        return tf.getBackend();
+      }
+    } catch {
+      // Try the next backend in the priority list.
+    }
   }
 
-  await tf.ready();
-  return tf.getBackend();
+  throw new Error(
+    `TensorFlow.js backend 초기화에 실패했습니다 (시도: ${squatConfig.model.backendPriority.join(', ')}).`,
+  );
 }
 
-export async function createMoveNetDetector(): Promise<MoveNetDetector> {
+export async function createMoveNetDetector(
+  type: MoveNetModelType = squatConfig.model.type,
+): Promise<MoveNetDetector> {
   const modelType =
-    squatConfig.model.type === 'SINGLEPOSE_THUNDER'
-      ? movenet.modelType.SINGLEPOSE_THUNDER
-      : movenet.modelType.SINGLEPOSE_LIGHTNING;
+    type === 'SINGLEPOSE_THUNDER' ? movenet.modelType.SINGLEPOSE_THUNDER : movenet.modelType.SINGLEPOSE_LIGHTNING;
 
   return poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, {
     modelType,

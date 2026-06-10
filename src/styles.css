@@ -246,6 +246,23 @@ button:disabled {
   pointer-events: none;
 }
 
+.engine-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 3;
+  padding: 4px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: rgba(10, 14, 12, 0.62);
+  color: var(--text-soft, var(--text));
+  backdrop-filter: blur(12px);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
 .camera-message {
   position: absolute;
   inset: 0;

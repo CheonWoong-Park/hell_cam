@@ -3,6 +3,7 @@ import { Kalman1D, KeypointKalmanSmoother } from './kalman';
 import type { PoseKeypoint } from '../../types/pose';
 
 const config = { processNoise: 4000, measurementNoise: 9, minConfidence: 0.15, resetGapSeconds: 0.5 };
+const gate = { nisThreshold: 12, maxConsecutiveRejections: 4 };
 
 describe('Kalman1D', () => {
   it('reduces noise around a constant position', () => {
@@ -30,6 +31,44 @@ describe('Kalman1D', () => {
 
     expect(filter.velocity).toBeGreaterThan(speed * 0.8);
     expect(filter.velocity).toBeLessThan(speed * 1.2);
+  });
+
+  it('rejects a single-frame glitch when gated', () => {
+    const filter = new Kalman1D(config.processNoise, gate);
+    for (let i = 0; i < 30; i += 1) {
+      filter.step(100, 0.033, config.measurementNoise);
+    }
+
+    filter.step(400, 0.033, config.measurementNoise); // MoveNet glitch frame
+    expect(Math.abs(filter.position - 100)).toBeLessThan(5);
+
+    filter.step(100, 0.033, config.measurementNoise);
+    expect(Math.abs(filter.position - 100)).toBeLessThan(5);
+  });
+
+  it('re-seeds when the "outlier" persists (real pose change)', () => {
+    const filter = new Kalman1D(config.processNoise, gate);
+    for (let i = 0; i < 30; i += 1) {
+      filter.step(100, 0.033, config.measurementNoise);
+    }
+
+    for (let i = 0; i <= gate.maxConsecutiveRejections; i += 1) {
+      filter.step(400, 0.033, config.measurementNoise);
+    }
+
+    expect(Math.abs(filter.position - 400)).toBeLessThan(10);
+  });
+
+  it('still tracks fast continuous motion with the gate enabled', () => {
+    const filter = new Kalman1D(config.processNoise, gate);
+    const speed = 600; // px/sec — fast squat descent
+    const dt = 0.033;
+
+    for (let i = 1; i <= 40; i += 1) {
+      filter.step(i * speed * dt, dt, config.measurementNoise);
+    }
+
+    expect(Math.abs(filter.position - 40 * speed * dt)).toBeLessThan(15);
   });
 });
 

@@ -14,6 +14,9 @@ interface CameraViewProps {
   errors: FormError[];
   phase: SquatPhase;
   isRunning: boolean;
+  engineBackend: string;
+  engineModel: string;
+  engineFps: number | null;
 }
 
 export function CameraView({
@@ -25,8 +28,12 @@ export function CameraView({
   errors,
   phase,
   isRunning,
+  engineBackend,
+  engineModel,
+  engineFps,
 }: CameraViewProps) {
   const showOutOfFrame = poseFrame && !poseFrame.bodyInFrame;
+  const engineModelLabel = engineModel === 'SINGLEPOSE_THUNDER' ? 'Thunder' : 'Lightning';
 
   return (
     <section className="camera-shell" aria-label="Camera analysis area">
@@ -39,6 +46,12 @@ export function CameraView({
           autoPlay
         />
         <PoseCanvas poseFrame={poseFrame} videoRef={videoRef} mirror={squatConfig.camera.mirror} />
+        {modelReady && (
+          <div className="engine-badge" aria-label="Inference engine status">
+            MoveNet {engineModelLabel} · {engineBackend}
+            {engineFps !== null && ` · ${engineFps}fps`}
+          </div>
+        )}
         <div className="camera-message">
           {cameraError && <strong>{cameraError}</strong>}
           {!cameraError && !cameraReady && <strong>Start Camera를 눌러 시작하세요</strong>}

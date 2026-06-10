@@ -1,6 +1,19 @@
 import { clamp } from './geometry';
 import type { PoseKeypoint } from '../../types/pose';
 
+export interface KalmanGateConfig {
+  /**
+   * Normalized innovation squared (innovation² / innovation variance) above which a
+   * measurement is rejected as an outlier. 9 ≈ a 3σ gate.
+   */
+  nisThreshold: number;
+  /**
+   * Consecutive rejections after which the filter re-seeds on the measurement —
+   * a persistent "outlier" means the world actually changed, not the sensor.
+   */
+  maxConsecutiveRejections: number;
+}
+
 export interface KalmanConfig {
   /** Acceleration variance (process noise). Higher → tracks faster but noisier. */
   processNoise: number;
@@ -10,6 +23,8 @@ export interface KalmanConfig {
   minConfidence: number;
   /** Gap (seconds) beyond which the filters are re-seeded (e.g. camera restart). */
   resetGapSeconds: number;
+  /** Optional innovation gate that rejects single-frame keypoint glitches. */
+  gate?: KalmanGateConfig;
 }
 
 /**
@@ -26,8 +41,13 @@ export class Kalman1D {
   private p01 = 0;
   private p10 = 0;
   private p11 = 1;
+  private consecutiveRejections = 0;
+  private lastMeasurement: number | null = null;
 
-  constructor(private readonly processNoise: number) {}
+  constructor(
+    private readonly processNoise: number,
+    private readonly gate?: KalmanGateConfig,
+  ) {}
 
   get position(): number {
     return this.pos;
@@ -45,17 +65,21 @@ export class Kalman1D {
     this.initialized = false;
   }
 
-  private seed(measurement: number): void {
+  private seed(measurement: number, velocity = 0): void {
     this.pos = measurement;
-    this.vel = 0;
+    this.vel = velocity;
     this.p00 = 100;
     this.p01 = 0;
     this.p10 = 0;
     this.p11 = 100;
+    this.consecutiveRejections = 0;
     this.initialized = true;
   }
 
   step(measurement: number, dt: number, measurementNoise: number): void {
+    const previousMeasurement = this.lastMeasurement;
+    this.lastMeasurement = measurement;
+
     if (!this.initialized || !Number.isFinite(dt) || dt <= 0) {
       this.seed(measurement);
       return;
@@ -82,7 +106,29 @@ export class Kalman1D {
 
     // --- Update with position measurement (H = [1, 0]) ---
     const innovation = measurement - this.pos;
-    const s = np00 + measurementNoise;
+    let effectiveNoise = measurementNoise;
+    const nis = (innovation * innovation) / (np00 + measurementNoise);
+
+    // Robust innovation gate (Huber-style): a measurement far outside the
+    // predicted uncertainty gets its noise inflated by the excess, so a
+    // single-frame glitch barely moves the state while a persistent change
+    // still pulls the filter (and its velocity) toward the truth. A long run
+    // of gated frames means the world really jumped — re-seed.
+    if (this.gate && nis > this.gate.nisThreshold) {
+      this.consecutiveRejections += 1;
+      if (this.consecutiveRejections > this.gate.maxConsecutiveRejections) {
+        // Seed velocity from the raw measurement difference so fast continuous
+        // motion (e.g. a quick descent) resumes tracking immediately.
+        const seedVelocity = previousMeasurement === null ? 0 : (measurement - previousMeasurement) / dt;
+        this.seed(measurement, seedVelocity);
+        return;
+      }
+      effectiveNoise = measurementNoise * (nis / this.gate.nisThreshold);
+    } else {
+      this.consecutiveRejections = 0;
+    }
+
+    const s = np00 + effectiveNoise;
     const k0 = np00 / s;
     const k1 = np10 / s;
 
@@ -124,8 +170,8 @@ export class KeypointKalmanSmoother {
       let filter = this.filters.get(keypoint.name);
       if (!filter) {
         filter = {
-          x: new Kalman1D(this.config.processNoise),
-          y: new Kalman1D(this.config.processNoise),
+          x: new Kalman1D(this.config.processNoise, this.config.gate),
+          y: new Kalman1D(this.config.processNoise, this.config.gate),
         };
         this.filters.set(keypoint.name, filter);
       }

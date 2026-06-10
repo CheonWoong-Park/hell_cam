@@ -2,8 +2,18 @@ import type { FormErrorType } from '../../types/squat';
 
 export const squatConfig = {
   model: {
-    type: 'SINGLEPOSE_LIGHTNING' as 'SINGLEPOSE_LIGHTNING' | 'SINGLEPOSE_THUNDER',
-    backend: 'webgl',
+    // Prefer the more accurate Thunder model; the adaptive controller downgrades
+    // to Lightning when the device cannot sustain real-time inference.
+    type: 'SINGLEPOSE_THUNDER' as 'SINGLEPOSE_LIGHTNING' | 'SINGLEPOSE_THUNDER',
+    fallbackType: 'SINGLEPOSE_LIGHTNING' as 'SINGLEPOSE_LIGHTNING' | 'SINGLEPOSE_THUNDER',
+    backendPriority: ['webgpu', 'webgl'],
+    adaptive: {
+      // Below this sustained FPS the phase detector starts missing fast reps.
+      minFps: 21,
+      sampleWindow: 40,
+      // Ignore the first inferences: shader compilation dominates them.
+      warmupFrames: 12,
+    },
   },
   camera: {
     width: 1280,
@@ -29,7 +39,28 @@ export const squatConfig = {
       measurementNoise: 9,
       minConfidence: 0.15,
       resetGapSeconds: 0.5,
+      // Reject measurements whose normalized innovation² exceeds ~3.5σ; a real
+      // pose change re-seeds after a few consecutive rejections.
+      gate: {
+        nisThreshold: 12,
+        maxConsecutiveRejections: 4,
+      },
     },
+  },
+  anatomy: {
+    minLearnScore: 0.5,
+    maxLengthDecayPerSecond: 0.02,
+    // 2D projections foreshorten but can never exceed the true bone length.
+    stretchTolerance: 0.18,
+    stretchFail: 0.5,
+    // Bones are rigid: projected length changes from posing are slow (a squat
+    // descent shortens the thigh ~1-2x/s); a detector glitch is 10x faster.
+    maxRelativeChangePerSecond: 4,
+    changeFailPerSecond: 10,
+    minScoreScale: 0.3,
+    minObservations: 12,
+    maxConsecutiveSuspicious: 6,
+    resetGapSeconds: 0.5,
   },
   calibration: {
     standingHoldMs: 2000,
